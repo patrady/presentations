@@ -7,8 +7,8 @@ I've used this pattern in several projects since then.
 
 ## Installation
 
-1. npm install
-2. npm run present
+1. `npm install`
+2. `npm run present`
 
 ## Talks
 
