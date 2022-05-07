@@ -1,0 +1,400 @@
+import { yellow, prism } from "@mdx-deck/themes";
+
+export const theme = {
+  ...yellow,
+  ...prism,
+};
+
+# Decorating Makes Life Easier
+
+---
+
+### Let's make a Bucket List app
+
+---
+
+## Let's start with some default bucket list items
+
+```tsx
+const defaultItems: Item[] = [
+  {
+    value: "Walk into Sea World with a fishing pole",
+    isComplete: false,
+  },
+  {
+    value: "Hire two private investigators. Get them to follow each other.",
+    isComplete: false,
+  },
+  {
+    value: "Sneeze in front of the pope. Get blessed.",
+    isComplete: false,
+  },
+];
+```
+
+---
+
+## The Bucket List code would look something like...
+
+```tsx
+function BucketList() {
+  const [items, setItems] = useState<Item[]>(defaultItems);
+
+  return (
+    <div>
+      <ul>
+        {items.map((item) => (
+          <li>{item}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+---
+
+## Let's add an item
+
+```tsx
+function BucketList() {
+  const [items, setItems] = useState<Item[]>(defaultItems);
+  const [newItem, setNewItem] = useState("");
+
+  function handleAddItem() {
+    setItems([...items, { value: newItem, isComplete: false }]);
+  }
+
+  return (
+    <div>
+      <ul>...</ul>
+      <input onBlur={(e) => setNewItem(e.target.value)} />
+      <button onClick={handleAddItem}>Add Item</button>
+    </div>
+  );
+}
+```
+
+---
+
+## Now let's delete an item
+
+```tsx
+function BucketList() {
+  function handleDeleteItem(itemToDelete: Item) {
+    const index = items.findIndex((item) => item === itemToDelete.value);
+    if (index === -1) {
+      return;
+    }
+
+    setItems([...items].splice(index, 1));
+  }
+
+  return (
+    <div>
+      <ul>
+        {items.map((item) => (
+          <li>
+            {item}
+            <button onClick={() => handleDeleteItem(item)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+      ...
+    </div>
+  );
+}
+```
+
+---
+
+## How about marking an item off your bucket list?
+
+```tsx
+function BucketList() {
+  ...
+
+  function handleMarkComplete(itemToMarkComplete: Item) {
+    const index = items.findIndex(
+      (item) => item.value === itemToMarkComplete.value
+    );
+    if (index === -1) {
+      return;
+    }
+
+    const copy = [...items];
+    copy[index].isComplete = true;
+
+    setItems(copy);
+  }
+
+  return (
+    <div>
+      <ul>
+        {items.map((item) => (
+          <li>
+            {item}
+            <button onClick={() => handleMarkComplete(item)}>
+              Mark Complete
+            </button>
+            ...
+          </li>
+        ))}
+      </ul>
+      ...
+    </div>
+  );
+}
+```
+
+---
+
+## And it'd be nice to know if all my items were completed
+
+```tsx
+function BucketList() {
+  function allComplete() {
+    return items.every((item) => item.isComplete);
+  }
+
+  return (
+    <div>
+      ...
+      {allComplete() && <div>Great job, you have accomplished life </div>}
+    </div>
+  );
+}
+```
+
+---
+
+## Here's a look at the whole thing
+
+---
+
+```tsx
+import { useState } from "react";
+
+const defaultItems: Item[] = [
+  {
+    isComplete: false,
+    value: "Walk into Sea World with a fishing pole",
+  },
+  {
+    isComplete: false,
+    value: "Hire two private investigators. Get them to follow each other.",
+  },
+  {
+    isComplete: false,
+    value: "Sneeze in front of the pope. Get blessed.",
+  },
+];
+
+function BucketList() {
+  const [items, setItems] = useState<Item[]>(defaultItems);
+  const [newItem, setNewItem] = useState("");
+
+  function handleAddItem() {
+    setItems([...items, newItem]);
+    setNewItem("");
+  }
+
+  function handleMarkComplete(itemToMarkComplete: Item) {
+    const index = items.findIndex(
+      (item) => item.value === itemToMarkComplete.value
+    );
+    if (index === -1) {
+      return;
+    }
+
+    const copy = [...items];
+    copy[index].isComplete = true;
+
+    setItems(copy);
+  }
+
+  function handleDeleteItem(itemToDelete: Item) {
+    const index = items.findIndex((item) => item === itemToDelete);
+    if (index === -1) {
+      return;
+    }
+
+    setItems([...items].splice(index, 1));
+  }
+
+  function allComplete() {
+    return items.every((item) => item.isComplete);
+  }
+
+  return (
+    <div>
+      <ul>
+        {items.map((item) => (
+          <li>
+            {item}
+            <button onClick={() => handleMarkComplete(item)}>
+              Mark Complete
+            </button>
+            <button onClick={() => handleDeleteItem(item)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+
+      <input placeholder="Item" onBlur={(e) => setNewItem(e.target.value)} />
+      <button onClick={handleAddItem}>Add Item</button>
+
+      {allComplete() && <div>Great job, you have accomplished life </div>}
+    </div>
+  );
+}
+
+export default BucketList;
+```
+
+---
+
+## Welp, that blew up quickly
+
+## 🔥 😬 🔥
+
+---
+
+## Life is easier with decorating
+
+## But, what is a decorator?
+
+---
+
+import itemDecorator from "./images/item-decorator.png";
+import collectionDecorator from "./images/collection-decorator.png";
+
+<img src={itemDecorator} style={{ maxWidth: "80%" }} />
+
+<img src={collectionDecorator} style={{ maxWidth: "80%" }} />
+
+---
+
+## Let's make a decorator to wrap our bucket list array
+
+---
+
+```tsx
+class ItemCollectionDecorator {
+  items: Item[];
+
+  constructor(items: Item[]) {
+    this.items = items;
+  }
+
+  values() {
+    return this.items;
+  }
+}
+```
+
+---
+
+```tsx
+class ItemCollectionDecorator {
+  add(value: string) {
+    const newItem: Item = {
+      value,
+      isComplete: false,
+    };
+
+    return new ItemCollectionDecorator([...this.values(), newItem]);
+  }
+}
+```
+
+
+---
+
+```tsx
+class ItemCollectionDecorator {
+  delete(deletedItem: Item) {
+    const index = this.values().findIndex(
+      (item) => item.value === deletedItem.value
+    );
+    if (index === -1) {
+      return this;
+    }
+
+    return new ItemCollectionDecorator([...this.values()].splice(index, 1));
+  }
+}
+```
+
+---
+
+```tsx
+class ItemCollectionDecorator {
+  markComplete(completedItem: Item) {
+    const index = this.values().findIndex(
+      (item) => item.value === completedItem.value
+    );
+    if (index === -1) {
+      return this;
+    }
+
+    const copy = [...this.values()];
+    copy[index].isComplete = true;
+
+    return new ItemCollectionDecorator(copy);
+  }
+}
+```
+
+---
+
+```tsx
+class ItemCollectionDecorator {
+  allComplete() {
+    return this.values().every(item => item.isComplete);
+  }
+}
+```
+
+---
+
+## Let's see how that changed our component
+
+```tsx
+function BucketList() {
+  const [items, setItems] = useState(new ItemCollectionDecorator(defaultItems));
+  const [newItem, setNewItem] = useState("");
+
+  function handleAddItem() {
+    setItems(items.add(newItem));
+  }
+
+  function handleMarkComplete(completedItem: Item) {
+    setItems(items.markComplete(completedItem));
+  }
+
+  function handleDeleteItem(deletedItem: Item) {
+    setItems(items.delete(deletedItem));
+  }
+
+  return (
+    <div>
+      <ul>
+        {items.values().map((item) => (
+          <li>
+            {item}
+            <button onClick={() => handleMarkComplete(item)}>
+              Mark Complete
+            </button>
+            <button onClick={() => handleDeleteItem(item)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+
+      <input placeholder="Item" onBlur={(e) => setNewItem(e.target.value)} />
+      <button onClick={handleAddItem}>Add Item</button>
+
+      {items.allComplete() && <div>Great job, you have accomplished life </div>}
+    </div>
+  );
+}
+```

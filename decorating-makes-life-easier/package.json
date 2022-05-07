@@ -1,0 +1,14 @@
+{
+  "name": "decorating-makes-life-easier",
+  "version": "1.0.0",
+  "description": "Quick and Easy Decorator Pattern",
+  "main": "index.js",
+  "scripts": {
+    "present": "mdx-deck deck.mdx"
+  },
+  "author": "patrady",
+  "license": "MIT",
+  "devDependencies": {
+    "mdx-deck": "^4.1.1"
+  }
+}
